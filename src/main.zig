@@ -2,8 +2,7 @@ const std = @import("std");
 const Io = std.Io;
 const net = Io.net;
 
-const Rcode = @import("rcode.zig");
-const makeFlags = Rcode.makeFlags;
+const RcodeType = @import("rcode.zig").RCodeType;
 const DnsHeader = @import("dnsHeader.zig").DnsHeader;
 
 const records = std.StaticStringMap([4]u8).initComptime(.{
@@ -61,7 +60,7 @@ pub fn processQuery(packet: []const u8, out: []u8) !usize {
     if (qclass != CLASS_IN) {
         const response_header = DnsHeader{
             .id = header.id,
-            .flags = Rcode.makeFlags(.NotImp),
+            .flags = RcodeType.flags(.NotImp),
             .qdcount = 1,
             .ancount = 0,
             .nscount = 0,
@@ -74,7 +73,7 @@ pub fn processQuery(packet: []const u8, out: []u8) !usize {
     const dns_type = std.enums.fromInt(DnsType, qtype) orelse {
         const response_header = DnsHeader{
             .id = header.id,
-            .flags = Rcode.makeFlags(.NotImp),
+            .flags = RcodeType.flags(.NotImp),
             .qdcount = 1,
             .ancount = 0,
             .nscount = 0,
@@ -89,7 +88,7 @@ pub fn processQuery(packet: []const u8, out: []u8) !usize {
             if (records.get(name)) |ip| {
                 const response_header = DnsHeader{
                     .id = header.id,
-                    .flags = Rcode.makeFlags(.NoError),
+                    .flags = RcodeType.flags(.NoError),
                     .qdcount = 1,
                     .ancount = 1,
                     .nscount = 0,
@@ -116,7 +115,7 @@ pub fn processQuery(packet: []const u8, out: []u8) !usize {
             } else {
                 const response_header = DnsHeader{
                     .id = header.id,
-                    .flags = Rcode.makeFlags(.NxDomain),
+                    .flags = RcodeType.flags(.NxDomain),
                     .qdcount = 1,
                     .ancount = 0,
                     .nscount = 0,
@@ -129,7 +128,7 @@ pub fn processQuery(packet: []const u8, out: []u8) !usize {
         else => {
             const response_header = DnsHeader{
                 .id = header.id,
-                .flags = Rcode.makeFlags(.NotImp),
+                .flags = RcodeType.flags(.NotImp),
                 .qdcount = 1,
                 .ancount = 0,
                 .nscount = 0,
