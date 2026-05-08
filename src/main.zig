@@ -157,8 +157,8 @@ pub fn main(init: std.process.Init) !void {
     const io = init.io;
     const allocator = init.gpa;
     const port: u16 = blk: {
-        const env_port = init.environ_map.get("DNS_PORT") orelse break :blk 2053;
-        break :blk std.fmt.parseInt(u16, env_port, 10) catch 2053;
+        const env_port = init.environ_map.get("DNS_PORT") orelse break :blk 53;
+        break :blk std.fmt.parseInt(u16, env_port, 10) catch 53;
     };
     const address = net.IpAddress{ .ip4 = net.Ip4Address.unspecified(port) };
     const socket = try address.bind(io, .{ .mode = .dgram });
