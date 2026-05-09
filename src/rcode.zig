@@ -6,6 +6,9 @@ pub const RCodeType = enum(u4) {
     NotImp = 4, //do not support this query type or class
     Refused = 5, // refuse to answer this query
     pub fn flags(self: @This()) u16 {
-        return @as(u16, @intFromEnum(self));
+        const qr: u16 = 1 << 15;
+        const aa: u16 = 1 << 10;
+        const rcode: u16 = @intFromEnum(self);
+        return qr | aa | rcode;
     }
 };

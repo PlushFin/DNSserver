@@ -6,10 +6,13 @@ const RcodeType = @import("rcode.zig").RCodeType;
 const DnsHeader = @import("dnsHeader.zig").DnsHeader;
 
 const records = std.StaticStringMap([4]u8).initComptime(.{
+    .{ "plushfin.com.", .{ 109, 224, 228, 65 } },
+    .{ "ns1.plushfin.com.", .{ 109, 224, 228, 65 } },
+    .{ "ns2.plushfin.com.", .{ 109, 224, 228, 65 } },
+    .{ "www.plushfin.com.", .{ 109, 224, 228, 65 } },
     .{ "example.com.", .{ 1, 2, 3, 4 } },
     .{ "test.com.", .{ 5, 6, 7, 8 } },
 });
-
 const DnsType = enum(u16) {
     TYPE_A = 1,
     TYPE_CNAME = 5,
