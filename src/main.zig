@@ -31,7 +31,6 @@ pub fn processQuery(packet: []const u8, out: []u8) !usize {
     if (!header.isQuery()) return error.NotAQuery;
     if (header.qdcount == 0) return error.NoQuestion;
 
-    // --- Parse question name (starts at byte 12) ---
     var name_buf: [256]u8 = undefined;
     var name_len: usize = 0;
     var pos: usize = 12;
@@ -57,7 +56,6 @@ pub fn processQuery(packet: []const u8, out: []u8) !usize {
     const question_end = pos;
     const name = name_buf[0..name_len];
 
-    // --- Copy question section verbatim ---
     @memcpy(out[12..pos], packet[12..pos]);
 
     if (qclass != CLASS_IN) {
@@ -170,11 +168,13 @@ pub fn main(init: std.process.Init) !void {
     const cpu_count = try std.Thread.getCpuCount();
     std.log.info("Starting {d} workers on UDP port {d}", .{ cpu_count, port });
 
-    const threads = try allocator.alloc(std.Thread, cpu_count);
-    defer allocator.free(threads);
-
-    for (threads) |*t| {
-        t.* = try std.Thread.spawn(.{}, workerLoop, .{ io, socket });
+    const futures = try allocator.alloc(@TypeOf(io.async(workerLoop, .{ io, socket })), cpu_count);
+    defer allocator.free(futures);
+    for (futures) |*f| {
+        f.* = io.async(workerLoop, .{ io, socket });
     }
-    for (threads) |t| t.join();
+
+    for (futures) |*f| {
+        f.await(io);
+    }
 }
